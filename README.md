@@ -1,4 +1,4 @@
-# 📅 Backend de Gerenciamento de Eventos Tech
+# Backend de Gerenciamento de Eventos Tech
 
 ## 📌 Objetivo
 
