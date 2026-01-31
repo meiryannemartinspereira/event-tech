@@ -121,10 +121,10 @@ Permite consultar todos os detalhes de um evento específico:
 
 ---
 
-## 📐 Arquitetura Sugerida
+## 📐 
 
 ```
-com.seuprojeto.eventos
+com.eyetech.events
 ├── controller
 ├── service
 ├── repository
