@@ -1,10 +1,14 @@
 package com.eyetech.events.services;
 
 import java.sql.Date;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +18,7 @@ import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import com.eyetech.events.dtos.EventRequestDTO;
+import com.eyetech.events.dtos.EventResponseDTO;
 import com.eyetech.events.model.Event;
 import com.eyetech.events.repositories.EventRepository;
 
@@ -77,5 +82,22 @@ public class EventService {
         } catch (Exception e) {
             throw new RuntimeException("Error uploading image to S3", e);
         }
+    }
+
+    public List<EventResponseDTO> listEvents(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Event> eventsPage = eventRepository.findAll(pageable);
+
+        return eventsPage
+                .map(event -> new EventResponseDTO(
+                    event.getId(),
+                    event.getTitle(),
+                    event.getDescription(),
+                    event.getDate(),
+                    event.getRemote(),
+                    event.getEventUrl(),
+                    event.getEventUrl()
+                ))
+                .toList();
     }
 }
