@@ -1,6 +1,6 @@
 package com.eyetech.events.controller;
 
-import java.util.List;
+import java.sql.Date;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -36,17 +36,14 @@ public class EventController {
         return ResponseEntity.status(HttpStatus.CREATED).body(event);
     }
 
-    public List<EventResponseDTO> listEvents(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        return eventService.listEvents(page, size);
-    }
-
-    public Page<EventResponseDTO> listUpComingEvents(
+    public Page<EventResponseDTO> filterEvents(
+        @RequestParam(required = false) String title,
+        @RequestParam(required = false) Date date,
+        @RequestParam(required = false) String city,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ){
-        return eventService.listUpComingEvents(page, size);
+        return eventService.filterEvents(title, date, city, page, size);
     }
+
 }

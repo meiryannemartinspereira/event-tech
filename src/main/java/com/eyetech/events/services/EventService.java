@@ -2,7 +2,6 @@ package com.eyetech.events.services;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +23,7 @@ import com.eyetech.events.dtos.EventRequestDTO;
 import com.eyetech.events.dtos.EventResponseDTO;
 import com.eyetech.events.model.Event;
 import com.eyetech.events.repositories.EventRepository;
+import com.eyetech.events.repositories.EventSpecification;
 
 @Service
 public class EventService {
@@ -86,29 +87,34 @@ public class EventService {
         }
     }
 
-    public List<EventResponseDTO> listEvents(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Event> eventsPage = eventRepository.findAll(pageable);
-
-        return eventsPage
-                .map(event -> new EventResponseDTO(
-                    event.getId(),
-                    event.getTitle(),
-                    event.getDescription(),
-                    event.getDate(),
-                    event.getRemote(),
-                    event.getEventUrl(),
-                    event.getEventUrl()
-                ))
-                .toList();
-    }
-
-    public Page<EventResponseDTO> listUpComingEvents(int page, int size){
-        Pageable pageable = PageRequest.of(page, size, Sort.by("date").ascending());
-
+    public Page<EventResponseDTO> filterEvents(
+        String title,
+        Date date,
+        String city,
+        int page,
+        int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(
+            "date").ascending());
         Date today = Date.valueOf(LocalDate.now());
 
-        return eventRepository.findByDateGreaterThanEqual(today, pageable).map(
+        Specification<Event> spec = Specification.unrestricted();
+
+        spec = spec.and(EventSpecification.upcomingEvents(today));
+
+        if (title != null && !title.isBlank()) {
+            spec = spec.and(EventSpecification.titleContains(title));
+        }
+
+        if (date != null) {
+            spec = spec.and(EventSpecification.dateEquals(date));
+        }
+
+        if (city != null && !city.isBlank()) {
+            spec = spec.and(EventSpecification.cityEquals(city));
+        }
+
+        return eventRepository.findAll(spec, pageable).map(
             event -> new EventResponseDTO(
                 event.getId(),
                 event.getTitle(),
@@ -116,7 +122,9 @@ public class EventService {
                 event.getDate(),
                 event.getRemote(),
                 event.getEventUrl(),
-                event.getImgUrl()
-            ));
+                event.getEventUrl()
+            )
+        );
     }
+
 }
