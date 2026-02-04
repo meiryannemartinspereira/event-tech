@@ -7,11 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.eyetech.events.dtos.EventDetailResponseDTO;
 import com.eyetech.events.dtos.EventRequestDTO;
 import com.eyetech.events.dtos.EventResponseDTO;
 import com.eyetech.events.model.Event;
@@ -44,6 +46,10 @@ public class EventController {
         @RequestParam(defaultValue = "10") int size
     ){
         return eventService.filterEvents(title, date, city, page, size);
+    }
+
+    public EventDetailResponseDTO getEventDetails(@PathVariable Long id) {
+        return eventService.getEventDetails(id);
     }
 
 }

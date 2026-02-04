@@ -2,6 +2,7 @@ package com.eyetech.events.services;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,11 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import com.eyetech.events.dtos.CuponResponseDTO;
+import com.eyetech.events.dtos.EventDetailResponseDTO;
 import com.eyetech.events.dtos.EventRequestDTO;
 import com.eyetech.events.dtos.EventResponseDTO;
+import org.springframework.transaction.annotation.Transactional;
 import com.eyetech.events.model.Event;
 import com.eyetech.events.repositories.EventRepository;
 import com.eyetech.events.repositories.EventSpecification;
@@ -125,6 +129,34 @@ public class EventService {
                 event.getEventUrl()
             )
         );
+    }
+
+    @Transactional(readOnly = true)
+    public EventDetailResponseDTO getEventDetails(Long eventId){
+        Event event = eventRepository.findWithDetailsById(eventId)
+            .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        Date today = Date.valueOf(LocalDate.now());
+        
+        List<CuponResponseDTO> activeCupons = event.getCupons().stream().filter(
+            cupon -> cupon.getValid().after(today)).map(cupon -> new CuponResponseDTO(
+                cupon.getCode(),
+                cupon.getDiscount(),
+                cupon.getValid()
+            ))
+
+            .toList();
+        return new EventDetailResponseDTO(
+                event.getId(),
+                event.getTitle(),
+                event.getDescription(),
+                event.getDate(),
+                event.getRemote(),
+                event.getEventUrl(),
+                event.getImgUrl(),
+                event.getAddress().getCity(),
+                activeCupons
+        ); 
     }
 
 }

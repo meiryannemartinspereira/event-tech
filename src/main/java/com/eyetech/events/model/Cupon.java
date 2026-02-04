@@ -1,5 +1,6 @@
 package com.eyetech.events.model;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -26,7 +27,7 @@ public class Cupon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer discount;
+    private BigDecimal discount;
     private String code;
 
     private Date valid;
